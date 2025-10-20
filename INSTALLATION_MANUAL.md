@@ -74,12 +74,21 @@ ssh YOUR_USERNAME@YOUR_SERVER_IP
 ssh root@123.123.123.123
 ```
 
-
+**Important Note About Commands:**
+- If you're logged in as `root`, run all commands as shown in this manual
+- If you're logged in as a regular user (e.g., `ubuntu`, `admin`), you'll need to add `sudo` before most commands
+- Example: `apt update` becomes `sudo apt update`
+- Throughout this manual, commands that require elevated privileges will work with or without `sudo` depending on your user account level
 
 ### Step 2: Update System Packages
 
 ```bash
 apt update && apt upgrade -y
+```
+
+**If using a non-root user:**
+```bash
+sudo apt update && sudo apt upgrade -y
 ```
 
 Wait for updates to complete (5-10 minutes).
@@ -88,6 +97,11 @@ Wait for updates to complete (5-10 minutes).
 
 ```bash
 timedatectl set-timezone America/New_York
+```
+
+**If using a non-root user:**
+```bash
+sudo timedatectl set-timezone America/New_York
 ```
 
 Replace `America/New_York` with your timezone. List available timezones:
@@ -105,6 +119,16 @@ timedatectl list-timezones
 curl -fsSL https://get.docker.com -o get-docker.sh
 sh get-docker.sh
 rm get-docker.sh
+```
+
+**If using a non-root user:**
+```bash
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+rm get-docker.sh
+# Add your user to docker group (replace 'youruser' with your username)
+sudo usermod -aG docker $USER
+# Log out and log back in for group changes to take effect
 ```
 
 **Verify installation:**
@@ -130,10 +154,20 @@ If not available, install it:
 apt install docker-compose-plugin -y
 ```
 
+**If using a non-root user:**
+```bash
+sudo apt install docker-compose-plugin -y
+```
+
 ### Step 3: Install Nginx
 
 ```bash
 apt install nginx -y
+```
+
+**If using a non-root user:**
+```bash
+sudo apt install nginx -y
 ```
 
 **Verify installation:**
@@ -149,6 +183,11 @@ Expected output: `nginx version: nginx/1.x.x`
 apt install certbot python3-certbot-nginx -y
 ```
 
+**If using a non-root user:**
+```bash
+sudo apt install certbot python3-certbot-nginx -y
+```
+
 **Verify installation:**
 ```bash
 certbot --version
@@ -160,6 +199,11 @@ Expected output: `certbot 1.x.x`
 
 ```bash
 apt install git nano curl wget -y
+```
+
+**If using a non-root user:**
+```bash
+sudo apt install git nano curl wget -y
 ```
 
 ---
@@ -197,7 +241,15 @@ Expected output:
 └── database
 ```
 
-If `tree` command not found, install it: `apt install tree -y`
+If `tree` command not found, install it:
+```bash
+apt install tree -y
+```
+
+**If using a non-root user:**
+```bash
+sudo apt install tree -y
+```
 
 ---
 
@@ -316,7 +368,14 @@ If successful, auto-renewal is configured.
 ### Step 1: Create Nginx Configuration
 
 ```bash
-nano /etc/nginx/sites-available/gps-tracker
+nano /etc/nginx/sites-available/YOUR_DOMAIN
+```
+
+**Replace `YOUR_DOMAIN` with your actual domain** (e.g., `gps.yourdomain.com`)
+
+**Example:**
+```bash
+nano /etc/nginx/sites-available/gps.yourdomain.com
 ```
 
 **Copy and paste this configuration:**
@@ -397,21 +456,26 @@ server {
 }
 ```
 
-**Replace ALL instances of `YOUR_DOMAIN`** with your actual domain (there are 4 instances).
+**Replace ALL instances of `YOUR_DOMAIN` inside the file** with your actual domain (there are 4 instances).
 
 **Save and exit:** Press `Ctrl+X`, then `Y`, then `Enter`
 
 ### Step 2: Enable the Site
 
 ```bash
-# Create symbolic link
-ln -s /etc/nginx/sites-available/gps-tracker /etc/nginx/sites-enabled/
+# Create symbolic link (replace YOUR_DOMAIN with your actual domain)
+ln -s /etc/nginx/sites-available/YOUR_DOMAIN /etc/nginx/sites-enabled/
 
 # Remove default site
 rm -f /etc/nginx/sites-enabled/default
 
 # Test configuration
 nginx -t
+```
+
+**Example:**
+```bash
+ln -s /etc/nginx/sites-available/gps.yourdomain.com /etc/nginx/sites-enabled/
 ```
 
 **Expected output:**
@@ -890,7 +954,7 @@ systemctl restart nginx
 1. Server URL should be `https://YOUR_DOMAIN` (no `/api`)
 2. Check browser console for errors (F12 → Console)
 3. Ensure location permission granted
-4. Check backend logs: `docker-compose logs backend -f`
+4. Check backend logs: `docker compose logs backend -f`
 
 ### Issue: Database Connection Error
 
@@ -898,13 +962,13 @@ systemctl restart nginx
 
 ```bash
 # Check database status
-docker-compose ps gps_db
+docker compose ps gps_db
 
 # Restart database
-docker-compose restart db
+docker compose restart db
 
 # Check database logs
-docker-compose logs db
+docker compose logs db
 ```
 
 ### Issue: Out of Disk Space
@@ -1063,9 +1127,9 @@ docker compose restart db
 
 ### Enable Nginx Caching
 
-Edit Nginx config:
+Edit Nginx config (replace YOUR_DOMAIN with your actual domain):
 ```bash
-nano /etc/nginx/sites-available/gps-tracker
+nano /etc/nginx/sites-available/YOUR_DOMAIN
 ```
 
 Add inside `server` block:
@@ -1163,5 +1227,5 @@ For issues or questions:
 
 ---
 
-*Manual Version: 1.0*  
+*Manual Version: 1.1*  
 *Last Updated: 2025*
